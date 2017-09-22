@@ -1,4 +1,4 @@
-# ADAPTER-SPEC
+# ADAPTER-TEMPLATES
 
 When creating adapters, there are tasks that adapters must accomplished in order for the adapter to communicate with the ClearBlade Platform or ClearBlade Edge. This repository contains ClearBlade adapter __template__ programs, written in various languages, that contain the logic needed to implement these commonly needed tasks. 
 
