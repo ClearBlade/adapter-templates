@@ -152,7 +152,7 @@ The get_adapter_config method in the adapter template contains a __TODO__ commen
 
 ## Setup
 ---
-The GoLang adapter template (and any GoLang adapter) is dependent upon the ClearBlade Go SDK ad its dependent libraries being installed. Follow the installation instructions at https://docs.clearblade.com/v/3/4-developer_reference/go/QuickStart/ to install the Go SDK and its dependencies.
+The GoLang adapter template (and any GoLang adapter) is dependent upon the ClearBlade Go SDK and its dependent libraries being installed. Follow the installation instructions at https://docs.clearblade.com/v/3/4-developer_reference/go/QuickStart/ to install the Go SDK and its dependencies.
 
 ## Todo
 ---

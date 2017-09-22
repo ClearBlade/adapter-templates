@@ -147,7 +147,7 @@ The get_adapter_config method in the adapter template contains a __TODO__ commen
 
 ## Setup
 ---
-The python adapter template (and any python adapter) is dependent upon the ClearBlade Python SDK ad its dependent libraries being installed. Follow the installation instructions at https://github.com/clearblade/clearblade-python-sdk to install the Python SDK.
+The python adapter template (and any python adapter) is dependent upon the ClearBlade Python SDK and its dependent libraries being installed. Follow the installation instructions at https://github.com/clearblade/clearblade-python-sdk to install the Python SDK.
 
 ## Todo
 ---
