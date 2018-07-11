@@ -9,7 +9,13 @@
 #define USER_EMAIL "awmathie@iu.edu"
 #define USER_PASSWORD "clearblade"
 
-int main() {
+int main(int argc, char *argv[]) {
+	int i;
+
+	for (i = 0; i < argc; i++) { 
+		printf("Arguement %d: %s\n", i, argv[i]);
+	}
+
 	FILE *fp = fopen("adapter.log", "a");
 
 	void cbInitCallback(bool error, char *result) {
