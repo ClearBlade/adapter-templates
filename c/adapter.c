@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <clearblade.h>
 
 #define SYSTEM_KEY "928cddb30bacace5aa9df4c8cd6b"
@@ -11,8 +12,13 @@
 
 int main(int argc, char *argv[]) {
 	int i;
+	char systemKey[100];
 
-	for (i = 0; i < argc; i++) { 
+	for (i = 1; i < argc; i++) {
+		if (!strstr(argv[i], "systemKey")) {
+			memcpy(systemKey, &(arg[i] + 11));
+			printf("%s\n", systemKey);
+		}
 		printf("Arguement %d: %s\n", i, argv[i]);
 	}
 
