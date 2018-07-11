@@ -9,19 +9,30 @@
 #define MESSAGING_URL "http://localhost:9000"
 #define USER_EMAIL "awmathie@iu.edu"
 #define USER_PASSWORD "clearblade"
+#define STR_SIZE 50
 
 int main(int argc, char *argv[]) {
-	int i;
-	char systemKey[100];
+	int i, j;
+	const char *requriedParameters[] = { "systemKey", "systemSecret", "deviceID", "deviceActiveKey"};
+	const char *optionalParameters[] = { "httpURL", "httpPort", "messagingURL", "messagingPort", "adapterSettingsCollection",
+										 "adapterSettingsItem", "topicRoot", "deviceProvisionSvc", "deviceHealthSvc",
+										 "deviceLogsSvc", "deviceStatusSvc", "deviceDecommissionSvc", "logLevel", "logMQTT"};
+	// systemKey 0, systemSecret 1, deviceId 2, deviceActiveKey 3
+	char paramterVariables[4][STR_SIZE];
 
 	for (i = 1; i < argc; i++) {
-		if (!strstr(argv[i], "systemKey")) {
-			memcpy(systemKey, &(arg[i] + 11));
-			printf("%s\n", systemKey);
+		for (j = 0; j < 4; j++) {
+			if (strstr(argv[i], requriedParameters[j])) {
+				memcpy(paramterVariables[j], argv[i] + 2 + strlen(requriedParameters[j]), STR_SIZE);
+			}
 		}
-		printf("Arguement %d: %s\n", i, argv[i]);
 	}
-
+	
+	for (i = 0; i < 4; i++) {
+		printf("%s is: %s\n", requriedParameters[i], paramterVariables[i]);
+	}
+	
+	/*
 	FILE *fp = fopen("adapter.log", "a");
 
 	void cbInitCallback(bool error, char *result) {
@@ -38,6 +49,6 @@ int main(int argc, char *argv[]) {
 	
 	fprintf(fp, "heyyyyy\n");
 	fclose(fp);
-
+	*/
 	return 0;
 }
