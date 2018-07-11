@@ -13,25 +13,31 @@
 
 int main(int argc, char *argv[]) {
 	int i, j;
-	const char *requriedParameters[] = { "systemKey", "systemSecret", "deviceID", "deviceActiveKey"};
-	const char *optionalParameters[] = { "httpURL", "httpPort", "messagingURL", "messagingPort", "adapterSettingsCollection",
-										 "adapterSettingsItem", "topicRoot", "deviceProvisionSvc", "deviceHealthSvc",
-										 "deviceLogsSvc", "deviceStatusSvc", "deviceDecommissionSvc", "logLevel", "logMQTT"};
+	const char *parameters[] = { "-systemKey=", "-systemSecret=", "-deviceID=", "-deviceActiveKey=",
+	"-httpURL=", "-httpPort=", "-messagingURL=", "-messagingPort=", "-adapterSettingsCollection=",
+	"-adapterSettingsItem=", "-topicRoot=", "-deviceProvisionSvc=", "-deviceHealthSvc=",
+	"-deviceLogsSvc=", "-deviceStatusSvc=", "-deviceDecommissionSvc=", "-logLevel=", "-logMQTT="};
+	int numberOfParameters = sizeof(parameters) / sizeof(parameters[0]);
+	printf("number of parameters: %d\n", numberOfParameters);
+
 	// systemKey 0, systemSecret 1, deviceId 2, deviceActiveKey 3
-	char paramterVariables[4][STR_SIZE];
+	char parameterVariables[numberOfParameters][STR_SIZE];
+	memset(parameterVariables, 0, sizeof(parameterVariables));
 
 	for (i = 1; i < argc; i++) {
-		for (j = 0; j < 4; j++) {
-			if (strstr(argv[i], requriedParameters[j])) {
-				memcpy(paramterVariables[j], argv[i] + 2 + strlen(requriedParameters[j]), STR_SIZE);
+		for (j = 0; j < numberOfParameters; j++) {
+			if (strstr(argv[i], parameters[j])) {
+				memcpy(parameterVariables[j], argv[i] + strlen(parameters[j]), STR_SIZE);
 			}
 		}
 	}
 	
-	for (i = 0; i < 4; i++) {
-		printf("%s is: %s\n", requriedParameters[i], paramterVariables[i]);
+	for (i = 0; i < numberOfParameters; i++) {
+		if (parameterVariables[i]) {
+			printf("%s is: %s\n", parameters[i], parameterVariables[i]);
+		}
 	}
-	
+
 	/*
 	FILE *fp = fopen("adapter.log", "a");
 
