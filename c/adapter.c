@@ -17,11 +17,11 @@
 int main(int argc, char *argv[]) {
 
 	// COMMAND LINE ARGUEMENTS
-	int i, j, numberOfParameters = sizeof(parameters) / sizeof(parameters[0]);
 	const char *parameters[] = { "-systemKey=", "-systemSecret=", "-deviceID=", "-deviceActiveKey=",
 	"-httpURL=", "-httpPort=", "-messagingURL=", "-messagingPort=", "-adapterSettingsCollection=",
 	"-adapterSettingsItem=", "-topicRoot=", "-deviceProvisionSvc=", "-deviceHealthSvc=",
 	"-deviceLogsSvc=", "-deviceStatusSvc=", "-deviceDecommissionSvc=", "-logLevel=", "-logMQTT="};
+	int i, j, numberOfParameters = sizeof(parameters) / sizeof(parameters[0]);
 
 	// REQURED: systemKey 0, systemSecret 1, deviceId 2, deviceActiveKey 3
 	char parameterVariables[numberOfParameters][STR_SIZE];
@@ -33,23 +33,23 @@ int main(int argc, char *argv[]) {
 				memcpy(parameterVariables[j], argv[i] + strlen(parameters[j]), STR_SIZE);
 			}
 			if (j < 4 && !parameterVariables[j][0]) {
-				printf("%s is a required command line arguement!\n", parameters(j));
+				printf("%s is a required command line arguement!\n", parameters[j]);
 				return 1;
 			}
 		}
 	}
 	
-	char *platforum_url, *messaging_url;
+	char *platform_url, *messaging_url;
 
 	if (parameterVariables[4][0]) {
 		if (parameterVariables[5][0]) {
-			platforum_url = malloc(strlen(parameterVariables[4]) + strlen(parameterVariables[5]) + 1);
-			strcpy(platforum_url, parameterVariables[4]);
-			strcat(platforum_url, parameterVariables[5]);
+			platform_url = malloc(strlen(parameterVariables[4]) + strlen(parameterVariables[5]) + 1);
+			strcpy(platform_url, parameterVariables[4]);
+			strcat(platform_url, parameterVariables[5]);
 		} else {
-			platforum_url = malloc(strlen(parameterVariables[4]) + 6);
-			strcpy(platforum_url, parameterVariables[4]);
-			strcat(platformurl, ":9000");
+			platform_url = malloc(strlen(parameterVariables[4]) + 6);
+			strcpy(platform_url, parameterVariables[4]);
+			strcat(platform_url, ":9000");
 		}
 	} else {
 		platform_url = "http://localhost:9000";
@@ -79,10 +79,10 @@ int main(int argc, char *argv[]) {
 
 	// LOG FILE
 	FILE *fp = fopen("adapter.log", "a");
-	time_t time;
+	time_t raw_time;
 	struct tm *t;
-	time(&time);
-	t = localtime(&time);
+	time(&raw_time);
+	t = localtime(&raw_time);
 	fprintf(fp, "adapter began at %s\n", asctime(t));
 
 
