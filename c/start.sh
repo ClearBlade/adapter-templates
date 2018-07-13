@@ -7,4 +7,4 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-./adapter -systemKey=928cddb30bacace5aa9df4c8cd6b -systemSecret=928CDDB30BE0E3818FC0A2DCFD44 -deviceID=pythonAdapter -deviceActiveKey=85RFUeSlJXP952L2mT21659t3Y20
+./adapter -systemKey=928cddb30bacace5aa9df4c8cd6b -systemSecret=928CDDB30BE0E3818FC0A2DCFD44 -deviceID=pythonAdapter -deviceActiveKey=85RFUeSlJXP952L2mT21659t3Y20 -logLevel=debug
