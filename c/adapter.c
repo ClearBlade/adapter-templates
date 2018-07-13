@@ -9,6 +9,10 @@
 
 #define STR_SIZE 50
 
+void connectToPlatform(char *system_key, char *system_secret, char *device_id, 
+						   char *device_key, char *platform_url, char *messaging_url);
+void connectMQTT(char *device_id);
+
 // pointer to log file
 FILE *fp;
 // quality of service
@@ -122,8 +126,8 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void connectToPlatform(char system_key[], char system_secret[], char device_id[], 
-						   char device_key[], char platform_url[], char messaging_url[]) {
+void connectToPlatform(char *system_key, char *system_secret, char *device_id, 
+						   char *device_key, char *platform_url, char *messaging_url) {
 
 	void cbInitCallback(bool error, char *result) {
 	  if(error) {
@@ -147,7 +151,7 @@ void connectToPlatform(char system_key[], char system_secret[], char device_id[]
 		messaging_url, device_id, device_key, &cbInitCallback);
 }
 
-void connectMQTT(char device_id[]) {
+void connectMQTT(char *device_id) {
 	char *adapterName = "adapter";
 	char *clientID = malloc(strlen(adapterName) + 1 + strlen(device_id));
 	strcpy(clientID, adapterName);
