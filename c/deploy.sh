@@ -7,4 +7,4 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-gcc -o adapter adapter.c -L/usr/local/lib -lclearblade
+gcc -o adapter adapter.c -L/usr/local/lib -lclearblade -lpaho-mqtt3as
