@@ -1,0 +1,65 @@
+adapter began at Fri Jul 13 17:00:51 2018
+running...
+running...
+
+adapter began at Fri Jul 13 17:01:43 2018
+[DEBUG] Setting System Key to 928cddb30bacace5aa9df4c8cd6b
+[DEBUG] Setting System Secret to 928CDDB30BE0E3818FC0A2DCFD44
+[DEBUG] Setting device ID to pythonAdapter
+[DEBUG] Setting active key to 85RFUeSlJXP952L2mT21659t3Y20
+[DEBUG] Setting platform URL to http://localhost:9000
+[DEBUG] Setting messaging URL to http://localhost:9000
+ClearBlade Init Succeeded
+Auth token: Wz9j0dnp_gbKCPgevu2-HSWsv3BfuN5V4y97hHt4ymRrXQoyxuOfdZ9b-c8fZ1JH9Bt4KwjkGAdXg3owEw==
+running...
+running...
+running...
+
+adapter began at Fri Jul 13 18:26:33 2018
+[DEBUG] Setting System Key to 928cddb30bacace5aa9df4c8cd6b
+[DEBUG] Setting System Secret to 928CDDB30BE0E3818FC0A2DCFD44
+[DEBUG] Setting device ID to pythonAdapter
+[DEBUG] Setting active key to 85RFUeSlJXP952L2mT21659t3Y20
+[DEBUG] Setting platform URL to http://localhost:9000
+[DEBUG] Setting messaging URL to http://localhost:9000
+ClearBlade Init Succeeded
+Auth token: QbYv8TlG6YX7107OebLCNYAQN8iQo5QzEUwV3_2Ojuy6bkHJgiOSrqxgT1dGuoxdwyxrCu6KyR3b_vQGCg==
+client id is: adapterpythonAdapter
+running...
+running...
+
+adapter began at Fri Jul 13 18:42:55 2018
+[DEBUG] Setting System Key to 928cddb30bacace5aa9df4c8cd6b
+[DEBUG] Setting System Secret to 928CDDB30BE0E3818FC0A2DCFD44
+[DEBUG] Setting device ID to pythonAdapter
+[DEBUG] Setting active key to 85RFUeSlJXP952L2mT21659t3Y20
+[DEBUG] Setting platform URL to http://localhost:9000
+[DEBUG] Setting messaging URL to tcp://localhost:1883
+ClearBlade Init Succeeded
+Auth token: lqHsDOg4W-lKBWVceYXuO8CftmnLtSPu4og_UmVUpfaTpq8yptoNxUo_uUvc3bz2RDvQL82nckS1HposWA==
+client id is: test-cient
+adapter began at Fri Jul 13 18:45:10 2018
+[DEBUG] Setting System Key to 928cddb30bacace5aa9df4c8cd6b
+[DEBUG] Setting System Secret to 928CDDB30BE0E3818FC0A2DCFD44
+[DEBUG] Setting device ID to pythonAdapter
+[DEBUG] Setting active key to 85RFUeSlJXP952L2mT21659t3Y20
+[DEBUG] Setting platform URL to http://localhost:9000
+[DEBUG] Setting messaging URL to tcp://localhost:1883
+ClearBlade Init Succeeded
+Auth token: pJYyQy9E1M9MJH23s6bFzcZvdz_LbtJ6CQn0JJ4BBQ2cVbSFXK9JZar4A9nhq_SQmoGiR51dZkshqb7S5Q==
+client id is: adapterpythonAdapter
+running...
+running...
+
+adapter began at Fri Jul 13 18:49:24 2018
+[DEBUG] Setting System Key to 928cddb30bacace5aa9df4c8cd6b
+[DEBUG] Setting System Secret to 928CDDB30BE0E3818FC0A2DCFD44
+[DEBUG] Setting device ID to pythonAdapter
+[DEBUG] Setting active key to 85RFUeSlJXP952L2mT21659t3Y20
+[DEBUG] Setting platform URL to http://localhost:9000
+[DEBUG] Setting messaging URL to tcp://localhost:1883
+ClearBlade Init Succeeded
+Auth token: wMhXol09YtybclQfI-K7iXirBQx2P8u18cySuYAprG8BqYsVwKnOOdjC63KhSfRFjBi478u1Truyq4IIww==
+client id is: adapterpythonAdapter
+running...
+

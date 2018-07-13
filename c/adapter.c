@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <signal.h>
 #include <time.h>
 #include <unistd.h>
@@ -10,7 +11,7 @@
 #define STR_SIZE 50
 
 void connectToPlatform(char system_key[], char system_secret[], char device_id[], 
-						   char device_key[], char platform_url[], char messaging_url[]);
+			   char device_key[], char platform_url[], char messaging_url[]);
 void connectMQTT(char device_id[]);
 
 // pointer to log file
@@ -81,7 +82,7 @@ int main(int argc, char *argv[]) {
 		}
 	} else {
 		messFree = 0;
-		messagingUrl = "http://localhost:9000";
+		messagingUrl = "tcp://localhost:1883";
 	}
 
 	// 16 is log level
@@ -100,8 +101,7 @@ int main(int argc, char *argv[]) {
 	fprintf(fp, "adapter began at %s", asctime(t));
 
 	// CONNECT TO CB
-	connectToPlatform(parameterVariables[0], parameterVariables[1], parameterVariables[2], 
-					      parameterVariables[3], platformUrl, messagingUrl);
+	connectToPlatform(parameterVariables[0], parameterVariables[1], parameterVariables[2], parameterVariables[3], platformUrl, messagingUrl);
 	// CONNECT TO MQTT BROKER
 	connectMQTT(parameterVariables[2]);
 
@@ -157,6 +157,8 @@ void connectMQTT(char device_id[]) {
 	strcpy(clientID, adapterName);
 	strcat(clientID, device_id);
 
+	fprintf(fp, "client id is: %s\n", clientID);
+
 	void onConnect(void* context, MQTTAsync_successData* response) {
 	  fprintf(fp, "Successful connection to MQTT Broker\n");
 	  // Get the 'finished' variable from the CB SDK and set it to 1 to stop the connect loop
@@ -181,15 +183,17 @@ void connectMQTT(char device_id[]) {
 
 	void onDisconnect(void *context, char *cause) {
 	    fprintf(fp, "\nConnection lost\n");
-	  	fprintf(fp, "Cause: %s\n", cause);
-	  	fprintf(fp, "Ending %s now\n", adapterName);
+	    fprintf(fp, "Cause: %s\n", cause);
+	    fprintf(fp, "Ending %s now\n", clientID);
 
-	  	killAdapater = 1;
+	    killAdapater = 1;
 	}
 
 	// parameters: (char *clientId, int qualityOfService, void (*mqttOnConnect)(void* context, 
 	// MQTTAsync_successData* response), int (*messageArrivedCallback)(void *context, char *topicName, 
-	// int topicLen, MQTTAsync_message *message), void (*onConnLostCallback)(void *context, char *cause))
-	connectToMQTTAdvanced(clientID, qos, &onConnect, &messageArrived, &onDisconnect, 1);
+	// int topicLen, MQTTAsync_message *message), void (*onConnLostCallback)(void *context, char *cause)
+	//  bool autoReconnect)
+	connectToMQTTAdvanced(clientID, qos, &onConnect, &messageArrived, &onDisconnect, true);
+
 	free(clientID);
 }
