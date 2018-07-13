@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <clearblade.h>
+#include <signal.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
+#include <clearblade.h>
 #include "MQTTAsync.h"
 
 #define STR_SIZE 50
@@ -13,7 +14,11 @@ FILE *fp;
 // quality of service
 int qos = 0;
 // if we disconnect from MQTT or press control-c, kill the adapter
-static volatile int kill = 0;
+static volatile int killAdapater = 0;
+
+void intHandler(int dummy) {
+	killAdapater = 1;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -76,8 +81,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	// 16 is log level
-	if (strcmp(parameterVariables[16], "error") && strcmp(logLevel, "warn") 
-		&& strcmp(logLevel, "debug")) {
+	if (strcmp(parameterVariables[16], "error") && strcmp(parameterVariables[16], "warn") 
+		&& strcmp(parameterVariables[16], "debug")) {
 		printf("[ERROR] Invalid log level specified\n");
 		return 1;
 	}
@@ -94,12 +99,12 @@ int main(int argc, char *argv[]) {
 	connectToPlatform(parameterVariables[0], parameterVariables[1], parameterVariables[2], 
 					      parameterVariables[3], platformUrl, messagingUrl);
 	// CONNECT TO MQTT BROKER
-	connectToMQTT(parameterVariables[2]);
+	connectMQTT(parameterVariables[2]);
 
 	//TODO - Add your implemenation specific code here
 	//At this point, the CB device client will have been
 	//initialized and authenticated to the ClearBlade Platform or ClearBlade Edge
-	while (!kill) {
+	while (!killAdapater) {
 		fprintf(fp, "running...\n");
 		sleep(5);
 	}
@@ -115,10 +120,6 @@ int main(int argc, char *argv[]) {
 	fprintf(fp, "\n");
 	fclose(fp);
 	return 0;
-}
-
-void intHandler(int dummy) {
-	kill = 1;
 }
 
 void connectToPlatform(char *system_key, char *system_secret, char *device_id, 
@@ -146,7 +147,7 @@ void connectToPlatform(char *system_key, char *system_secret, char *device_id,
 		messaging_url, device_id, device_key, &cbInitCallback);
 }
 
-void connectToMQTT(char *device_id) {
+void connectMQTT(char *device_id) {
 	char *adapterName = "adapter";
 	char *clientID = malloc(strlen(adapterName) + 1 + strlen(device_id));
 	strcpy(clientID, adapterName);
@@ -179,12 +180,12 @@ void connectToMQTT(char *device_id) {
 	  	fprintf(fp, "Cause: %s\n", cause);
 	  	fprintf(fp, "Ending %s now\n", adapterName);
 
-	  	kill = 1;
+	  	killAdapater = 1;
 	}
 
 	// parameters: (char *clientId, int qualityOfService, void (*mqttOnConnect)(void* context, 
 	// MQTTAsync_successData* response), int (*messageArrivedCallback)(void *context, char *topicName, 
 	// int topicLen, MQTTAsync_message *message), void (*onConnLostCallback)(void *context, char *cause))
-	connectToMQTTAdvanced(clientID, qos, &onConnect, &messageArrived, &onDisconnect);
+	connectToMQTTAdvanced(clientID, qos, &onConnect, &messageArrived, &onDisconnect, 1);
 	free(clientID);
 }
