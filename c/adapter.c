@@ -11,36 +11,53 @@
 #define STR_SIZE 50
 
 // FUNCTION PROTOTYPES
+ht_item* ht_new_item(const char* k, const char* v);
+hash_table* ht_new();
+void ht_del_item(ht_item* i);
+void ht_del_hash_table(hash_table* ht);
+int ht_hash(const char* s, const int a, const int m);
 char *setAddress(char addr[], char port[], int isMessaging);
 void connectToPlatform(char system_key[], char system_secret[], char device_id[], 
 			   char device_key[], char platform_url[], char messaging_url[]);
 void connectMQTT(char device_id[]);
 void intHandler(int dummy);
 
+// STRUCTS
+typedef struct {
+    char* key;
+    char* value;
+} ht_item;
+
+typedef struct {
+    int size;
+    int count;
+    ht_item** items;
+} hash_table;
+
 // GLOBAL VARIABLES
 FILE *fp;
 int qos = 0;
 static volatile int killAdapater = 0;
-
-char systemKey[STR_SIZE];
-char systemSecret[STR_SIZE];
-char deviceId[STR_SIZE];
-char deviceActiveKey[STR_SIZE];
-char httpURL[STR_SIZE];
-char httpPort[STR_SIZE];
-char messagingURL[STR_SIZE];
-char messagingPort[STR_SIZE];
-char adapterSettingsCollection[STR_SIZE];
-char adapterSettingsItem[STR_SIZE];
-char topicRoot[STR_SIZE];
-char deviceProvisionSvc[STR_SIZE];
-char deviceHealthSvc[STR_SIZE];
-char deviceLogsSvc[STR_SIZE];
-char deviceStatusSvc[STR_SIZE];
-char deviceDecommissionSvc[STR_SIZE];
-char logLevel[STR_SIZE];
-char logMQTT[STR_SIZE];
-
+/*
+char *systemKey;
+char *systemSecret;
+char *deviceId;
+char *deviceActiveKey[;
+char *httpURL;
+char *httpPort;
+char *messagingURL;
+char *messagingPort;
+char *adapterSettingsCollection;
+char *adapterSettingsItem;
+char *topicRoot;
+char *deviceProvisionSvc;
+char *deviceHealthSvc;
+char *deviceLogsSvc;
+char *deviceStatusSvc;
+char *deviceDecommissionSvc;
+char *logLevel;
+char *logMQTT;
+*/
 // MAIN
 int main(int argc, char *argv[]) {
 
@@ -48,7 +65,7 @@ int main(int argc, char *argv[]) {
 
 	if (argc < 5) {
 		printf("[ERROR] systemKey, systemSecret, deviceID, and deviceActiveKey are required command line arguement!\n");
-		return;
+		return 1;
 	}
 
 	// COMMAND LINE ARGUEMENTS
@@ -63,34 +80,15 @@ int main(int argc, char *argv[]) {
 	memcpy(deviceId, argv[3] + strlen(parameters[2]), STR_SIZE);
 	memcpy(deviceActiveKey, argv[4] + strlen(parameters[3]), STR_SIZE);
 
-	if (argc > 5) {
-		memcpy(httpURL, argv[5] + strlen(parameters[4]), STR_SIZE);
-	} if (argc > 6) {
-		memcpy(httpPort, argv[6] + strlen(parameters[5]), STR_SIZE);
-	} if (argc > 7) {
-		memcpy(messagingURL, argv[7] + strlen(parameters[6]), STR_SIZE);
-	} if (argc > 8) {
-		memcpy(messagingPort, argv[8] + strlen(parameters[7]), STR_SIZE);
-	} if (argc > 9) {
-		memcpy(adapterSettingsCollection, argv[9] + strlen(parameters[8]), STR_SIZE);
-	} if (argc > 10) {
-		memcpy(adapterSettingsItem, argv[10] + strlen(parameters[9]), STR_SIZE);
-	} if (argc > 11) {
-		memcpy(topicRoot, argv[11] + strlen(parameters[10]), STR_SIZE);
-	} if (argc > 12) {
-		memcpy(deviceProvisionSvc, argv[12] + strlen(parameters[11]), STR_SIZE);
-	} if (argc > 13) {
-		memcpy(deviceHealthSvc, argv[13] + strlen(parameters[12]), STR_SIZE);
-	} if (argc > 14) {
-		memcpy(deviceLogsSvc, argv[14] + strlen(parameters[13]), STR_SIZE);
-	} if (argc > 15) {
-		memcpy(deviceStatusSvc, argv[15] + strlen(parameters[14]), STR_SIZE);
-	} if (argc > 16) {
-		memcpy(deviceDecommissionSvc, argv[16] + strlen(parameters[15]), STR_SIZE);
-	} if (argc > 17) {
-		memcpy(logLevel, argv[17] + strlen(parameters[16]), STR_SIZE);
-	} if (argc > 18) {
-		memcpy(logMQTT, argv[18] + strlen(parameters[17]), STR_SIZE);
+	char *argName = malloc(30);
+	char *val = malloc(30);
+
+	while (--argc) {
+		int indexToSplit = strchr(argv[argc], '=');
+		strncpy(argName, argv[argc] + 1, indexToSplit);
+		strncpy(val, argv[argc] + indexToSplit + 1, strlen(argv[argc]) - indexToSplit - 1);
+		printf("argName: %s, val: %s\n");
+		//ht_new_item(ht_hash(argName, 151, 20), val);
 	}
 	
 	/*
@@ -152,6 +150,52 @@ int main(int argc, char *argv[]) {
 	fclose(fp);
 	return 0;
 }
+
+// HASH TABLE FUNCTIONS
+ht_item* ht_new_item(const char* k, const char* v) {
+    ht_item* i = malloc(sizeof(ht_item));
+    i->key = strdup(k);
+    i->value = strdup(v);
+    return i;
+}
+
+hash_table* ht_new() {
+    hash_table* ht = malloc(sizeof(hash_table));
+
+    ht->size = 20;
+    ht->count = 0;
+    ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
+    return ht;
+}
+
+void ht_del_item(ht_item* i) {
+    free(i->key);
+    free(i->value);
+    free(i);
+}
+
+void ht_del_hash_table(hash_table* ht) {
+    for (int i = 0; i < ht->size; i++) {
+        ht_item* item = ht->items[i];
+        if (item != NULL) {
+            ht_del_item(item);
+        }
+    }
+    free(ht->items);
+    free(ht);
+}
+
+int ht_hash(const char* s, const int a, const int m) {
+    long hash = 0;
+    const int len_s = strlen(s);
+    for (int i = 0; i < len_s; i++) {
+        hash += (long)pow(a, len_s - (i+1)) * s[i];
+        hash = hash % m;
+    }
+    return (int)hash;
+}
+
+// ADAPTER FUNCTIONS
 
 char *setAddress(char addr[], char port[], int isMessaging) {
 	char *url;
