@@ -10,18 +10,6 @@
 
 #define STR_SIZE 50
 
-// FUNCTION PROTOTYPES
-ht_item* ht_new_item(const char* k, const char* v);
-hash_table* ht_new();
-void ht_del_item(ht_item* i);
-void ht_del_hash_table(hash_table* ht);
-int ht_hash(const char* s, const int a, const int m);
-char *setAddress(char addr[], char port[], int isMessaging);
-void connectToPlatform(char system_key[], char system_secret[], char device_id[], 
-			   char device_key[], char platform_url[], char messaging_url[]);
-void connectMQTT(char device_id[]);
-void intHandler(int dummy);
-
 // STRUCTS
 typedef struct {
     char* key;
@@ -34,15 +22,28 @@ typedef struct {
     ht_item** items;
 } hash_table;
 
+// FUNCTION PROTOTYPES
+ht_item* ht_new_item(const char* k, const char* v);
+hash_table* ht_new();
+void ht_del_item(ht_item* i);
+void ht_del_hash_table(hash_table* ht);
+int ht_hash(const char* s, const int a, const int m);
+char *setAddress(char addr[], char port[], int isMessaging);
+void connectToPlatform(char system_key[], char system_secret[], char device_id[], 
+			   char device_key[], char platform_url[], char messaging_url[]);
+void connectMQTT(char device_id[]);
+void intHandler(int dummy);
+
 // GLOBAL VARIABLES
 FILE *fp;
 int qos = 0;
 static volatile int killAdapater = 0;
-/*
+
 char *systemKey;
 char *systemSecret;
 char *deviceId;
-char *deviceActiveKey[;
+char *deviceActiveKey;
+/*
 char *httpURL;
 char *httpPort;
 char *messagingURL;
@@ -80,15 +81,16 @@ int main(int argc, char *argv[]) {
 	memcpy(deviceId, argv[3] + strlen(parameters[2]), STR_SIZE);
 	memcpy(deviceActiveKey, argv[4] + strlen(parameters[3]), STR_SIZE);
 
-	char *argName = malloc(30);
-	char *val = malloc(30);
-
 	while (--argc) {
-		int indexToSplit = strchr(argv[argc], '=');
-		strncpy(argName, argv[argc] + 1, indexToSplit);
-		strncpy(val, argv[argc] + indexToSplit + 1, strlen(argv[argc]) - indexToSplit - 1);
+		char *argName = malloc(30);
+
+		char val = strchr(argv[argc], '=') + 1;
+		strncpy(argName, argv[argc] + 1, (int) (val - argv[argc]));
 		printf("argName: %s, val: %s\n");
 		//ht_new_item(ht_hash(argName, 151, 20), val);
+
+		free(argName);
+		free(val);
 	}
 	
 	/*
