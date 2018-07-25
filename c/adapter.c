@@ -5,6 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 #include <clearblade.h>
 #include "MQTTAsync.h"
 
@@ -75,29 +76,35 @@ int main(int argc, char *argv[]) {
 		"-adapterSettingsItem=", "-topicRoot=", "-deviceProvisionSvc=", "-deviceHealthSvc=",
 		"-deviceLogsSvc=", "-deviceStatusSvc=", "-deviceDecommissionSvc=", "-logLevel=", "-logMQTT="};
 	int i, j;
-
+/*
 	memcpy(systemKey, argv[1] + strlen(parameters[0]), STR_SIZE);
 	memcpy(systemSecret, argv[2] + strlen(parameters[1]), STR_SIZE);
 	memcpy(deviceId, argv[3] + strlen(parameters[2]), STR_SIZE);
 	memcpy(deviceActiveKey, argv[4] + strlen(parameters[3]), STR_SIZE);
+*/
+	//char *val = "placeholder";
+	*argv++;
+	argc--;
 
-	while (--argc) {
-		char *argName = malloc(30);
+	char *argName = malloc(30);
 
-		char val = strchr(argv[argc], '=') + 1;
-		strncpy(argName, argv[argc] + 1, (int) (val - argv[argc]));
-		printf("argName: %s, val: %s\n");
+	while (argc--) {
+		char *val = strchr(*argv, '=');
+		*val++;
+		int pos = val - *argv;
+		strncpy(argName, *argv, pos);
+		printf("argName: %s, val: %s\n", argName, val);
 		//ht_new_item(ht_hash(argName, 151, 20), val);
 
-		free(argName);
-		free(val);
+		memset(argName, 0, strlen(argName));
+		*argv++;
 	}
 	
-	/*
+
 	// VALIDATING COMMAND LINE ARGS
 	int numberOfParameters = sizeof(parameters) / sizeof(parameters[0]);
 	char parameterVariables[numberOfParameters][STR_SIZE];
-
+/*
 	for (i = 1; i < argc; i++) {
 		for (j = 0; j < numberOfParameters; j++) {
 			if (strstr(argv[i], parameters[j])) {
@@ -191,7 +198,7 @@ int ht_hash(const char* s, const int a, const int m) {
     long hash = 0;
     const int len_s = strlen(s);
     for (int i = 0; i < len_s; i++) {
-        hash += (long)pow(a, len_s - (i+1)) * s[i];
+//        hash += (long)pow(a, len_s - (i+1)) * s[i];
         hash = hash % m;
     }
     return (int)hash;
