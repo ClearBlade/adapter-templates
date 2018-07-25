@@ -87,14 +87,17 @@ int main(int argc, char *argv[]) {
 	argc--;
 
 	char *argName = malloc(30);
+	int hash;
 
 	while (argc--) {
 		char *val = strchr(*argv, '=');
 		*val++;
 		int pos = val - *argv;
 		strncpy(argName, *argv, pos);
-		printf("argName: %s, val: %s\n", argName, val);
-		//ht_new_item(ht_hash(argName, 151, 20), val);
+
+		hash = ht_hash(argName, 151, 20);	
+
+		printf("argName: %s, hash: %d, val: %s\n", argName, hash, val);
 
 		memset(argName, 0, strlen(argName));
 		*argv++;
@@ -198,7 +201,7 @@ int ht_hash(const char* s, const int a, const int m) {
     long hash = 0;
     const int len_s = strlen(s);
     for (int i = 0; i < len_s; i++) {
-//        hash += (long)pow(a, len_s - (i+1)) * s[i];
+        hash += (long)pow((double) a, (double) len_s - (i+1)) * s[i];
         hash = hash % m;
     }
     return (int)hash;
