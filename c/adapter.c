@@ -11,24 +11,37 @@
 
 #define STR_SIZE 50
 
-// STRUCTS
-typedef struct {
-    char* key;
-    char* value;
-} ht_item;
+typedef enum {systemKey, systemSecret, deviceId, deviceActiveKey, httpURL, httpPort,
+messagingURL, messagingPort, adapterSettingsCollection, adapterSettingsItem, topicRoot,
+deviceProvisionSvc, deviceHealthSvc, deviceLogsSvc, deviceStatusSvc, deviceDecommissionSvc,
+logLevel, logMQTT} ARGUMENT;
 
-typedef struct {
-    int size;
-    int count;
-    ht_item** items;
-} hash_table;
+const static struct {
+    ARGUMENT    arg;
+    const char *str;
+} conversion [] = {
+    {systemKey, "systemKey"},
+    {systemSecret, "systemSecret"},
+    {deviceId, "deviceId"},
+    {deviceActiveKey, "deviceActiveKey"},
+    {httpURL, "httpURL"},
+    {httpPort, "httpPort"},
+    {messagingURL, "messagingURL"},
+    {messagingPort, "messagingPort"},
+    {adapterSettingsCollection, "adapterSettingsCollection"},
+    {adapterSettingsItem, "adapterSettingsItem"},
+    {topicRoot, "topicRoot"},
+    {deviceProvisionSvc, "deviceProvisionSvc"},
+    {deviceHealthSvc, "deviceHealthSvc"},
+    {deviceLogsSvc, "deviceLogsSvc"},
+    {deviceStatusSvc, "deviceStatusSvc"},
+    {deviceDecommissionSvc, "deviceDecommissionSvc"},
+    {logLevel, "logLevel"},
+    {logMQTT, "logMQTT"}
+};
 
 // FUNCTION PROTOTYPES
-ht_item* ht_new_item(const char* k, const char* v);
-hash_table* ht_new();
-void ht_del_item(ht_item* i);
-void ht_del_hash_table(hash_table* ht);
-int ht_hash(const char* s, const int a, const int m);
+ARGUMENT str2enum (const char *str);
 char *setAddress(char addr[], char port[], int isMessaging);
 void connectToPlatform(char system_key[], char system_secret[], char device_id[], 
 			   char device_key[], char platform_url[], char messaging_url[]);
@@ -93,11 +106,14 @@ int main(int argc, char *argv[]) {
 		char *val = strchr(*argv, '=');
 		*val++;
 		int pos = val - *argv;
-		strncpy(argName, *argv, pos);
+		strncpy(argName, *argv, pos - 1);
+		*argName++;
 
-		hash = ht_hash(argName, 151, 20);	
+		//switch (str2enum(argName)) {
 
-		printf("argName: %s, hash: %d, val: %s\n", argName, hash, val);
+//		}
+
+		printf("argName: %s, val: %s\n", argName, val);
 
 		memset(argName, 0, strlen(argName));
 		*argv++;
@@ -163,51 +179,16 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-// HASH TABLE FUNCTIONS
-ht_item* ht_new_item(const char* k, const char* v) {
-    ht_item* i = malloc(sizeof(ht_item));
-    i->key = strdup(k);
-    i->value = strdup(v);
-    return i;
+// FUNCTIONS
+
+ARGUMENT str2enum (const char *str)
+{
+     int j;
+     for (j = 0;  j < sizeof (conversion) / sizeof (conversion[0]);  ++j)
+         if (!strcmp (str, conversion[j].str))
+             return conversion[j].val;    
+     error_message ("no such string");
 }
-
-hash_table* ht_new() {
-    hash_table* ht = malloc(sizeof(hash_table));
-
-    ht->size = 20;
-    ht->count = 0;
-    ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
-    return ht;
-}
-
-void ht_del_item(ht_item* i) {
-    free(i->key);
-    free(i->value);
-    free(i);
-}
-
-void ht_del_hash_table(hash_table* ht) {
-    for (int i = 0; i < ht->size; i++) {
-        ht_item* item = ht->items[i];
-        if (item != NULL) {
-            ht_del_item(item);
-        }
-    }
-    free(ht->items);
-    free(ht);
-}
-
-int ht_hash(const char* s, const int a, const int m) {
-    long hash = 0;
-    const int len_s = strlen(s);
-    for (int i = 0; i < len_s; i++) {
-        hash += (long)pow((double) a, (double) len_s - (i+1)) * s[i];
-        hash = hash % m;
-    }
-    return (int)hash;
-}
-
-// ADAPTER FUNCTIONS
 
 char *setAddress(char addr[], char port[], int isMessaging) {
 	char *url;
