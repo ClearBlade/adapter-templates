@@ -1,3 +1,12 @@
-adapter began at Fri Jul 20 20:35:40 2018
-running...
-
+adapter began at Thu Jul 26 16:11:37 2018
+[DEBUG] Setting System Key to 928cddb30bacace5aa9df4c8cd6b
+[DEBUG] Setting System Secret to 928CDDB30BE0E3818FC0A2DCFD44
+[DEBUG] Setting device ID to pythonAdapter
+[DEBUG] Setting active key to 85RFUeSlJXP952L2mT21659t3Y20
+[DEBUG] Setting platform URL to http://localhost:9000
+[DEBUG] Setting messaging URL to localhost:1883
+ClearBlade Init Succeeded
+Auth token: d5I_CenjXaPSet1sQO23ghXR0jiU2xAoA-synkmVhvrGbvIcv1FD6Nz3woMMSA7pQgYmiRSj7a7FJBPsVw==
+[DEBUG] Setting clientId to pythonAdapter
+[DEBUG] Setting quality of service to 0
+Successful connection to MQTT Broker

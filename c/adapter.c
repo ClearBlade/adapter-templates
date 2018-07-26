@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <signal.h>
 #include <time.h>
-#include <unistd.h>
 #include <string.h>
 #include <math.h>
 #include <clearblade.h>
 #include "MQTTAsync.h"
 
+// ENUM AND STRUCT ARRAY FOR HANDLING CL ARGS
 typedef enum {systemKey, systemSecret, deviceID, deviceActiveKey, httpURL, httpPort,
 messagingURL, messagingPort, adapterSettingsCollection, adapterSettingsItem, topicRoot,
 deviceProvisionSvc, deviceHealthSvc, deviceLogsSvc, deviceStatusSvc, deviceDecommissionSvc,
@@ -72,13 +71,12 @@ char *device_decommission_svc;
 char *log_level;
 char *log_mqtt;
 
-// MAIN
 int main(int argc, char *argv[]) {
 
 	signal(SIGINT, intHandler);
 
 	int fail = handleCLArgs(argc, argv);
-	if (!fail) {
+	if (fail) {
 		return 1;
 	}
 
@@ -96,18 +94,16 @@ int main(int argc, char *argv[]) {
 	initLogs();
 
 	// CONNECT TO CB
-	connectToPlatform(parameterVariables[0], parameterVariables[1], parameterVariables[2], parameterVariables[3], platformUrl, messagingUrl);
+	connectToPlatform(system_key, system_secret, device_id, device_active_key, platformUrl, messagingUrl);
 	// CONNECT TO MQTT BROKER
-	connectMQTT(parameterVariables[2]);
+	connectMQTT(device_id);
 
 	//TODO - Add your implemenation specific code here
 	//At this point, the CB device client will have been
 	//initialized and authenticated to the ClearBlade Platform or ClearBlade Edge
 
-	
 	while (!killAdapater) {
-		fprintf(fp, "running...\n");
-		sleep(5);
+		
 	}
 
 	// FREEING ALLOCATED MEMORY
@@ -207,6 +203,7 @@ int handleCLArgs(int argc, char *argv[]) {
 
 void initLogs() {
 	fp = fopen("adapter.log", "a");
+	fflush(fp);
 	time_t raw_time;
 	struct tm *t;
 	time(&raw_time);
@@ -227,11 +224,17 @@ ARGUMENT str2enum (char *str)
      printf("didn't find %s when attempting to convert. went up to %d\n", str, max);
 }
 
-char *setAddress(char addr[], char port[], int isMessaging) {
+int evaluate(char *str) {
+	if (!strcmp(str, "true"))
+		return 1;
+	return 0;
+}
+
+char *setAddress(char *addr, char *port, int isMessaging) {
 	char *url;
 
-	if (addr[0]) {
-		if (port[0]) {
+	if (addr != NULL) {
+		if (port != NULL) {
 			url = malloc(strlen(addr) + strlen(port) + 1);
 			strcpy(url, addr);
 			strcat(url, port);
@@ -268,12 +271,14 @@ void connectToPlatform(char system_key[], char system_secret[], char device_id[]
 	  }
 	}
 
-	fprintf(fp, "[DEBUG] Setting System Key to %s\n", system_key);
-	fprintf(fp, "[DEBUG] Setting System Secret to %s\n", system_secret);
-	fprintf(fp, "[DEBUG] Setting device ID to %s\n", device_id);
-	fprintf(fp, "[DEBUG] Setting active key to %s\n", device_key);
-	fprintf(fp, "[DEBUG] Setting platform URL to %s\n", platform_url);
-	fprintf(fp, "[DEBUG] Setting messaging URL to %s\n", messaging_url);
+	if (!strcmp(log_level, "debug")) {
+		fprintf(fp, "[DEBUG] Setting System Key to %s\n", system_key);
+		fprintf(fp, "[DEBUG] Setting System Secret to %s\n", system_secret);
+		fprintf(fp, "[DEBUG] Setting device ID to %s\n", device_id);
+		fprintf(fp, "[DEBUG] Setting active key to %s\n", device_key);
+		fprintf(fp, "[DEBUG] Setting platform URL to %s\n", platform_url);
+		fprintf(fp, "[DEBUG] Setting messaging URL to %s\n", messaging_url);
+	}
 
 	// paramters: (char *systemkey, char *systemsecret, char *platformurl, char *messagingurl,
 	// char *devicename, char *activekey, void (*initCallback)(bool error, char *result)
@@ -283,19 +288,23 @@ void connectToPlatform(char system_key[], char system_secret[], char device_id[]
 
 void connectMQTT(char device_id[]) {
 	void onConnect(void* context, MQTTAsync_successData* response) {
-	  	fprintf(fp, "Successful connection to MQTT Broker\n");
+		if (evaluate(log_mqtt)) {
+	  		fprintf(fp, "Successful connection to MQTT Broker\n");
+		}
 	  	// Get the 'finished' variable from the CB SDK and set it to 1 to stop the connect loop
 	  	extern int finished;
 	  	finished = 1;
 	}
 
 	int messageArrived(void *context, char *topicName, int topicLen, MQTTAsync_message *message) {
-		fprintf(fp, "Message arrived\n");
-		fprintf(fp, "Topic: %s\n", topicName);
 		char *messagePayload = malloc(message->payloadlen + 1);
 	 	strncpy(messagePayload, message->payload, message->payloadlen);
 		messagePayload[message->payloadlen] = '\0';
-		fprintf(fp, "Message: %s\n", messagePayload);
+		if (evaluate(log_mqtt)) {
+			fprintf(fp, "Message arrived\n");
+			fprintf(fp, "Topic: %s\n", topicName);
+			fprintf(fp, "Message: %s\n", messagePayload);
+		}
 
 		//HANDLE MQTT MESSAGES HERE
 
@@ -307,16 +316,20 @@ void connectMQTT(char device_id[]) {
 	}
 
 	void onDisconnect(void *context, char *cause) {
-		fprintf(fp, "\nConnection lost\n");
-		fprintf(fp, "Cause: %s\n", cause);
-		fprintf(fp, "Killing adapter now\n");
+		if (evaluate(log_mqtt)) {
+			fprintf(fp, "\nConnection lost\n");
+			fprintf(fp, "Cause: %s\n", cause);
+			fprintf(fp, "Killing adapter now\n");
+		}
 		printf("MQTT connection lost, killing adapter now\n");
 
 		killAdapater = 1;
 	}
-
-	fprintf(fp, "[DEBUG] Setting clientId to %s\n", device_id);
-	fprintf(fp, "[DEBUG] Setting quality of service to %s\n", qos);
+	
+	if (evaluate(log_mqtt) && !strcmp(log_level, "debug")) {
+		fprintf(fp, "[DEBUG] Setting clientId to %s\n", device_id);
+		fprintf(fp, "[DEBUG] Setting quality of service to %d\n", qos);
+	}
 
 	// parameters: (char *clientId, int qualityOfService, void (*mqttOnConnect)(void* context, 
 	// MQTTAsync_successData* response), int (*messageArrivedCallback)(void *context, char *topicName, 
@@ -327,4 +340,5 @@ void connectMQTT(char device_id[]) {
 
 void intHandler(int dummy) {
 	killAdapater = 1;
+	fclose(fp);
 }
