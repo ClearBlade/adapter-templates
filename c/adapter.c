@@ -86,18 +86,19 @@ int main(int argc, char *argv[]) {
 	*argv++;
 	argc--;
 
-	char *argName = malloc(30);
-
 	while (argc--) {
+		char *argName = malloc(35);
 		char *val = strchr(*argv, '=');
 		*val++;
 		int pos = val - *argv;
 		strncpy(argName, *argv, pos - 1);
 		*argName++;
 
-		printf("argName: %s, val: %s\n", argName, val);
+		int conv = str2enum(argName);
 
-		switch (str2enum(argName)) {
+		printf("argName: %s, val: %s, conversion:%d\n", argName, val, conv);
+
+		switch (conv) {
 			case 0:
 				system_key = val;
 				break;
@@ -154,10 +155,8 @@ int main(int argc, char *argv[]) {
 				break;
 			default:
 				printf("[ERROR] unknown argument passed in: %s %s\n", argName, val);
-	//			printf("str2enum returns: %d\n", str2enum(argName));
 				return 1;
 		}
-	//	printf("str2enum returns: %d\n", str2enum(argName));
 
 		memset(argName, 0, strlen(argName));
 		*argv++;
@@ -217,8 +216,8 @@ ARGUMENT str2enum (char *str)
 {
      int j, max = sizeof(conversion) / sizeof(conversion[0]);
      for (j = 0;  j < max;  j++) {
-         if (!strcmp (str, conversion[j].str)) {
-	     printf("conversion returning %d\n", j);
+	if (!strcmp (str, conversion[j].str)) {
+	     //printf("conversion returning %d\n", j);
              return conversion[j].arg;
 	}
      }
