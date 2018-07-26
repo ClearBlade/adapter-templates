@@ -11,7 +11,7 @@
 
 #define STR_SIZE 50
 
-typedef enum {systemKey, systemSecret, deviceId, deviceActiveKey, httpURL, httpPort,
+typedef enum {systemKey, systemSecret, deviceID, deviceActiveKey, httpURL, httpPort,
 messagingURL, messagingPort, adapterSettingsCollection, adapterSettingsItem, topicRoot,
 deviceProvisionSvc, deviceHealthSvc, deviceLogsSvc, deviceStatusSvc, deviceDecommissionSvc,
 logLevel, logMQTT} ARGUMENT;
@@ -22,7 +22,7 @@ const static struct {
 } conversion [] = {
     {systemKey, "systemKey"},
     {systemSecret, "systemSecret"},
-    {deviceId, "deviceId"},
+    {deviceID, "deviceID"},
     {deviceActiveKey, "deviceActiveKey"},
     {httpURL, "httpURL"},
     {httpPort, "httpPort"},
@@ -41,7 +41,7 @@ const static struct {
 };
 
 // FUNCTION PROTOTYPES
-ARGUMENT str2enum (const char *str);
+ARGUMENT str2enum (char *str);
 char *setAddress(char addr[], char port[], int isMessaging);
 void connectToPlatform(char system_key[], char system_secret[], char device_id[], 
 			   char device_key[], char platform_url[], char messaging_url[]);
@@ -53,26 +53,25 @@ FILE *fp;
 int qos = 0;
 static volatile int killAdapater = 0;
 
-char *systemKey;
-char *systemSecret;
-char *deviceId;
-char *deviceActiveKey;
-/*
-char *httpURL;
-char *httpPort;
-char *messagingURL;
-char *messagingPort;
-char *adapterSettingsCollection;
-char *adapterSettingsItem;
-char *topicRoot;
-char *deviceProvisionSvc;
-char *deviceHealthSvc;
-char *deviceLogsSvc;
-char *deviceStatusSvc;
-char *deviceDecommissionSvc;
-char *logLevel;
-char *logMQTT;
-*/
+char *system_key;
+char *system_secret;
+char *device_id;
+char *device_active_key;
+char *http_url;
+char *http_port;
+char *messaging_url;
+char *messaging_port;
+char *adapter_settings_collection;
+char *adapter_settings_item;
+char *topic_root;
+char *device_provision_svc;
+char *device_health_svc;
+char *device_logs_svc;
+char *device_status_svc;
+char *device_decommission_svc;
+char *log_level;
+char *log_mqtt;
+
 // MAIN
 int main(int argc, char *argv[]) {
 
@@ -84,23 +83,10 @@ int main(int argc, char *argv[]) {
 	}
 
 	// COMMAND LINE ARGUEMENTS
-	const char *parameters[] = { "-systemKey=", "-systemSecret=", "-deviceID=", "-deviceActiveKey=",
-		"-httpURL=", "-httpPort=", "-messagingURL=", "-messagingPort=", "-adapterSettingsCollection=",
-		"-adapterSettingsItem=", "-topicRoot=", "-deviceProvisionSvc=", "-deviceHealthSvc=",
-		"-deviceLogsSvc=", "-deviceStatusSvc=", "-deviceDecommissionSvc=", "-logLevel=", "-logMQTT="};
-	int i, j;
-/*
-	memcpy(systemKey, argv[1] + strlen(parameters[0]), STR_SIZE);
-	memcpy(systemSecret, argv[2] + strlen(parameters[1]), STR_SIZE);
-	memcpy(deviceId, argv[3] + strlen(parameters[2]), STR_SIZE);
-	memcpy(deviceActiveKey, argv[4] + strlen(parameters[3]), STR_SIZE);
-*/
-	//char *val = "placeholder";
 	*argv++;
 	argc--;
 
 	char *argName = malloc(30);
-	int hash;
 
 	while (argc--) {
 		char *val = strchr(*argv, '=');
@@ -109,33 +95,79 @@ int main(int argc, char *argv[]) {
 		strncpy(argName, *argv, pos - 1);
 		*argName++;
 
-		//switch (str2enum(argName)) {
-
-//		}
-
 		printf("argName: %s, val: %s\n", argName, val);
+
+		switch (str2enum(argName)) {
+			case 0:
+				system_key = val;
+				break;
+			case 1:
+				system_secret = val;
+				break;
+			case 2:
+				device_id = val;
+				break;
+			case 3:
+				device_active_key = val;
+				break;
+			case 4:
+				http_url = val;
+				break;
+			case 5:
+				http_port = val;
+				break;
+			case 6:
+				messaging_url = val;
+				break;
+			case 7:
+				messaging_port = val;
+				break;
+			case 8:
+				adapter_settings_collection = val;
+				break;
+			case 9:
+				adapter_settings_item = val;
+				break;
+			case 10:
+				topic_root = val;
+				break;
+			case 11:
+				device_provision_svc = val;
+				break;
+			case 12:
+				device_health_svc = val;
+				break;
+			case 13:
+				device_logs_svc = val;
+				break;
+			case 14:
+				device_status_svc = val;
+				break;
+			case 15:
+				device_decommission_svc = val;
+				break;
+			case 16:
+				log_level = val;
+				break;
+			case 17:
+				log_mqtt = val;
+				break;
+			default:
+				printf("[ERROR] unknown argument passed in: %s %s\n", argName, val);
+	//			printf("str2enum returns: %d\n", str2enum(argName));
+				return 1;
+		}
+	//	printf("str2enum returns: %d\n", str2enum(argName));
 
 		memset(argName, 0, strlen(argName));
 		*argv++;
 	}
 	
+	printf("system key is: %s\n", system_key);
 
 	// VALIDATING COMMAND LINE ARGS
-	int numberOfParameters = sizeof(parameters) / sizeof(parameters[0]);
+	int numberOfParameters = 18;
 	char parameterVariables[numberOfParameters][STR_SIZE];
-/*
-	for (i = 1; i < argc; i++) {
-		for (j = 0; j < numberOfParameters; j++) {
-			if (strstr(argv[i], parameters[j])) {
-				memcpy(parameterVariables[j], argv[i] + strlen(parameters[j]), STR_SIZE);
-			}
-		}
-		if (i < 5 && !parameterVariables[i-1][0]) {
-			printf("[ERROR] %s is a required command line arguement!\n", parameters[i-1]);
-			return 1;
-		}	
-	}
-	*/
 
 	char *platformUrl, *messagingUrl;
 
@@ -181,13 +213,17 @@ int main(int argc, char *argv[]) {
 
 // FUNCTIONS
 
-ARGUMENT str2enum (const char *str)
+ARGUMENT str2enum (char *str)
 {
-     int j;
-     for (j = 0;  j < sizeof (conversion) / sizeof (conversion[0]);  ++j)
-         if (!strcmp (str, conversion[j].str))
-             return conversion[j].val;    
-     error_message ("no such string");
+     int j, max = sizeof(conversion) / sizeof(conversion[0]);
+     for (j = 0;  j < max;  j++) {
+         if (!strcmp (str, conversion[j].str)) {
+	     printf("conversion returning %d\n", j);
+             return conversion[j].arg;
+	}
+     }
+
+     printf("didn't find %s when attempting to convert. went up to %d\n", str, max);
 }
 
 char *setAddress(char addr[], char port[], int isMessaging) {
