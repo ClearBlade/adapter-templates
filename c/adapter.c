@@ -9,8 +9,6 @@
 #include <clearblade.h>
 #include "MQTTAsync.h"
 
-#define STR_SIZE 50
-
 typedef enum {systemKey, systemSecret, deviceID, deviceActiveKey, httpURL, httpPort,
 messagingURL, messagingPort, adapterSettingsCollection, adapterSettingsItem, topicRoot,
 deviceProvisionSvc, deviceHealthSvc, deviceLogsSvc, deviceStatusSvc, deviceDecommissionSvc,
@@ -41,6 +39,8 @@ const static struct {
 };
 
 // FUNCTION PROTOTYPES
+int handleCLArgs(int argc, char *argv[]);
+void initLogs();
 ARGUMENT str2enum (char *str);
 char *setAddress(char addr[], char port[], int isMessaging);
 void connectToPlatform(char system_key[], char system_secret[], char device_id[], 
@@ -77,12 +77,56 @@ int main(int argc, char *argv[]) {
 
 	signal(SIGINT, intHandler);
 
+	int fail = handleCLArgs(argc, argv);
+	if (!fail) {
+		return 1;
+	}
+
+	char *platformUrl, *messagingUrl;
+	platformUrl = setAddress(http_url, http_port, 0);
+	messagingUrl = setAddress(messaging_url, messaging_port, 1);
+
+	// CHECKING LOG LEVEL
+	if (strcmp(log_level, "error") && strcmp(log_level, "warn") && strcmp(log_level, "debug")) {
+		printf("[ERROR] Invalid log level specified\n");
+		return 1;
+	}
+
+	// INIT LOG FILE
+	initLogs();
+
+	// CONNECT TO CB
+	connectToPlatform(parameterVariables[0], parameterVariables[1], parameterVariables[2], parameterVariables[3], platformUrl, messagingUrl);
+	// CONNECT TO MQTT BROKER
+	connectMQTT(parameterVariables[2]);
+
+	//TODO - Add your implemenation specific code here
+	//At this point, the CB device client will have been
+	//initialized and authenticated to the ClearBlade Platform or ClearBlade Edge
+
+	
+	while (!killAdapater) {
+		fprintf(fp, "running...\n");
+		sleep(5);
+	}
+
+	// FREEING ALLOCATED MEMORY
+	free(platformUrl);
+	free(messagingUrl);
+
+	fprintf(fp, "\n");
+	fclose(fp);
+	return 0;
+}
+
+// FUNCTIONS
+
+int handleCLArgs(int argc, char *argv[]) {
 	if (argc < 5) {
 		printf("[ERROR] systemKey, systemSecret, deviceID, and deviceActiveKey are required command line arguement!\n");
 		return 1;
 	}
 
-	// COMMAND LINE ARGUEMENTS
 	*argv++;
 	argc--;
 
@@ -94,11 +138,7 @@ int main(int argc, char *argv[]) {
 		strncpy(argName, *argv, pos - 1);
 		*argName++;
 
-		int conv = str2enum(argName);
-
-		printf("argName: %s, val: %s, conversion:%d\n", argName, val, conv);
-
-		switch (conv) {
+		switch (str2enum(argName)) {
 			case 0:
 				system_key = val;
 				break;
@@ -161,56 +201,18 @@ int main(int argc, char *argv[]) {
 		memset(argName, 0, strlen(argName));
 		*argv++;
 	}
-	
-	printf("system key is: %s\n", system_key);
 
-	// VALIDATING COMMAND LINE ARGS
-	int numberOfParameters = 18;
-	char parameterVariables[numberOfParameters][STR_SIZE];
+	return 0;
+}
 
-	char *platformUrl, *messagingUrl;
-
-	platformUrl = setAddress(parameterVariables[4], parameterVariables[5], 0);
-	messagingUrl = setAddress(parameterVariables[6], parameterVariables[7], 1);
-
-	// CHECKING LOG LEVEL
-	if (strcmp(parameterVariables[16], "error") && strcmp(parameterVariables[16], "warn") 
-		&& strcmp(parameterVariables[16], "debug")) {
-		printf("[ERROR] Invalid log level specified\n");
-		return 1;
-	}
-
-	// INIT LOG FILE
+void initLogs() {
 	fp = fopen("adapter.log", "a");
 	time_t raw_time;
 	struct tm *t;
 	time(&raw_time);
 	t = localtime(&raw_time);
 	fprintf(fp, "adapter began at %s", asctime(t));
-
-	// CONNECT TO CB
-	connectToPlatform(parameterVariables[0], parameterVariables[1], parameterVariables[2], parameterVariables[3], platformUrl, messagingUrl);
-	// CONNECT TO MQTT BROKER
-	connectMQTT(parameterVariables[2]);
-
-	//TODO - Add your implemenation specific code here
-	//At this point, the CB device client will have been
-	//initialized and authenticated to the ClearBlade Platform or ClearBlade Edge
-	while (!killAdapater) {
-		fprintf(fp, "running...\n");
-		sleep(5);
-	}
-
-	// FREEING ALLOCATED MEMORY
-	free(platformUrl);
-	free(messagingUrl);
-
-	fprintf(fp, "\n");
-	fclose(fp);
-	return 0;
 }
-
-// FUNCTIONS
 
 ARGUMENT str2enum (char *str)
 {
