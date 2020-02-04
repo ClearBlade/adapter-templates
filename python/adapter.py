@@ -62,7 +62,7 @@ def parse_args(argv):
                         help='The MQTT URL of the ClearBlade Platform or Edge the adapter will \
                         connect to. The default is https://localhost.')
 
-    parser.add_argument('-messagingPort', dest="messagingPort", default="1883", \
+    parser.add_argument('-messagingPort', dest="messagingPort", type=int, default=1883, \
                         help='The MQTT Port of the ClearBlade Platform or Edge the adapter will \
                         connect to. The default is 9000.')
 
